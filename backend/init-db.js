@@ -6,8 +6,9 @@ async function initDB() {
   try {
     // Connect without database first to create it
     connection = await mysql.createConnection({
-      host: process.env.DB_HOST || 'localhost',
+      host: process.env.DB_HOST || 'zephyr.proxy.rlwy.net',
       user: process.env.DB_USER || 'root',
+      port: process.env.DB_PORT || '30609',
       password: process.env.DB_PASSWORD || ''
     });
 

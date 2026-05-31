@@ -152,25 +152,37 @@ app.delete('/api/questions/:id', async (req, res) => {
 });
 
 // Attempts Routes
-app.get('/api/attempts', async (req, res) => {
-  try {
-    const [attempts] = await db.execute('SELECT * FROM attempts ORDER BY submittedAt DESC');
-    res.json(attempts);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 app.post('/api/attempts', async (req, res) => {
   const { quizId, studentId, answers, score, timeTaken, passed } = req.body;
+
   try {
+
+    // Check if student already attempted this quiz
+    const [existing] = await db.execute(
+      'SELECT id FROM attempts WHERE quizId = ? AND studentId = ?',
+      [quizId, studentId]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({
+        error: 'You have already attempted this quiz'
+      });
+    }
+
     const [result] = await db.execute(
       'INSERT INTO attempts (quizId, studentId, answers, score, timeTaken, passed) VALUES (?, ?, ?, ?, ?, ?)',
       [quizId, studentId, JSON.stringify(answers), score, timeTaken, passed]
     );
-    res.status(201).json({ id: result.insertId, ...req.body });
+
+    res.status(201).json({
+      id: result.insertId,
+      ...req.body
+    });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      error: err.message
+    });
   }
 });
 
