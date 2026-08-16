@@ -151,6 +151,14 @@ app.delete('/api/questions/:id', async (req, res) => {
   }
 });
 
+app.get('/api/attempts', async (req, res) => {
+  try {
+    const [attempts] = await db.execute('SELECT * FROM attempts ORDER BY submittedAt DESC');
+    res.json(attempts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 // Attempts Routes
 app.post('/api/attempts', async (req, res) => {
   const { quizId, studentId, answers, score, timeTaken, passed } = req.body;
